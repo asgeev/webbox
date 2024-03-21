@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { MIME_TYPE_MAP } from "./mimesWhiteList";
 
-const maxFileSize = 10 * 1000 * 1000;
+const maxFileSize = 1; //1MB;
 
 const storage = multer.diskStorage({
   destination: function (req: express.Request, file: Express.Multer.File, cb) {
@@ -17,15 +17,15 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage: storage,
   limits: { fileSize: maxFileSize },
-  fileFilter: async (
+  fileFilter: (
     req: express.Request,
     file: Express.Multer.File,
     cb: multer.FileFilterCallback,
   ) => {
     if (MIME_TYPE_MAP.includes(file.mimetype)) {
-      cb(null, true);
+      return cb(null, true);
     } else {
-      cb(null, false);
+      return cb(new Error("Files with this extension are not allowed."));
     }
   },
 });

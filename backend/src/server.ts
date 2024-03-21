@@ -17,16 +17,19 @@ app.get("/", (req, res) => {
   res.send("Hello from webbox!");
 });
 
-const uploadSingleFile = upload.single("file");
-
 app.post("/upload", (req: express.Request, res: express.Response) => {
+  const uploadSingleFile = upload.single("file");
+
   uploadSingleFile(req, res, (err) => {
+    console.log(req.file);
     if (err instanceof multer.MulterError) {
-      return res.end("Max file size 2MB allowed!");
-    } else if (err) {
-      res.status(415).send(err.message);
-    } else if (!req.file) {
-      res.status(415).send("File is required!");
+      return res.status(400).end(err.message);
+    }
+    if (err) {
+      return res.status(400).end(err.message);
+    }
+    if (!req.file) {
+      return res.status(400).end("File required");
     } else {
       res.send("File successfully uploaded");
       res.status(200);
