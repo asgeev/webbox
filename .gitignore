@@ -3,3 +3,4 @@ uploads
 .env
 .next
 .nvmrc
+sqlite.db

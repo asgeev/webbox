@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { MIME_TYPE_MAP } from "./mimesWhiteList";
 
-const maxFileSize = 1; //1MB;
+const maxFileSize = 50 * 1024 * 1024; //MB
 
 const storage = multer.diskStorage({
   destination: function (req: express.Request, file: Express.Multer.File, cb) {
