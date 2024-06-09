@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { upload } from "./multer";
-import { createDbConnection, insertRow } from "./db";
+import { insertRow } from "./db";
 const app = express();
 
 //TODO: add port from env file
@@ -18,14 +18,8 @@ app.get("/", (req, res) => {
   res.send("Hello from webbox!");
 });
 
-const db = createDbConnection();
-
-console.log(db);
-
-app.post("/upload", (req: express.Request, res: express.Response) => {
+app.post("/upload", async (req: express.Request, res: express.Response) => {
   const uploadSingleFile = upload.single("file");
-
-  insertRow(db);
 
   uploadSingleFile(req, res, (err) => {
     if (err instanceof multer.MulterError) {
@@ -35,9 +29,24 @@ app.post("/upload", (req: express.Request, res: express.Response) => {
       return res.status(400).end(err.message);
     } else if (!req.file) {
       return res.status(400).end("File required");
-    } else {
-      res.send("File successfully uploaded");
-      res.status(200);
+    }
+    else {
+      insertRow({
+        originalFileName: req?.file?.originalname,
+        fileNameWithExt: req?.file?.filename,
+        fileExt: req?.file?.originalname.slice(-3),
+        fileMime: req?.file?.filename,
+        fileSize: Number(req?.file?.size),
+        path: req?.file?.path,
+        uploadDate: Date.now(),
+      })
+        .then(() => {
+          res.send("File successfully uploaded");
+          res.status(200);
+        })
+        .catch((err) => {
+          return res.status(500).end("Cannot save file data to database:" + err);
+        });
     }
   });
 });
